@@ -1,4 +1,4 @@
-file(GLOB_RECURSE TEST_FILES *.cpp)
+file(GLOB_RECURSE TEST_FILES ./*.cpp)
 
 set(TestsName "Tests")
 

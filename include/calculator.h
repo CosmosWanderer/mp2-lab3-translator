@@ -11,5 +11,5 @@
 
 class calculator {
 public:
-	std::string calculate(bool isFloat, std::vector<std::pair<std::string, std::string>> postfixForm); 
+	std::string calculate(std::vector<std::pair<std::string, std::string>> postfixForm); 
 };

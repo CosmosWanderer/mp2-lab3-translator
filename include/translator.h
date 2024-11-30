@@ -32,5 +32,5 @@ public:
 	void addFunctions(std::set<std::string> f1, std::set<std::string> f2);
 
 	// ѕолучаем строку, выводим ответ или создаЄм переменную с полученным значением, ну или выводим ошибку и ничего не делаем
-	void execute(std::string input);
+	std::string execute(std::string input);
 };

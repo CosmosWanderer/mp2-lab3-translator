@@ -39,8 +39,8 @@ std::vector<std::pair<std::string, std::string>> transformator::transform(std::v
 			// Если в сверху лежит функция меньшего или равного приоритета, то перемещаем из стека в ответ до тех пор, пока это не будет исправлено
 			else {
 				// Надо рассмотреть для *, / и +, - отдельно, т.к. есть сложности с приоритетами
-				if (token.second == "u-" || token.second == "u+") {
-					while (!(S.size() == 0 || S.top().second == "*" || S.top().second == "/" || S.top().second == "-" || S.top().second == "+" || S.top().first == "func1")) {
+				if (token.second == "-u" || token.second == "+u") {
+					while (!(S.size() == 0 || S.top().second == "-u" || S.top().second == "+u" || S.top().second == "*" || S.top().second == "/" || S.top().second == "-" || S.top().second == "+" || S.top().first == "func1")) {
 						result.push_back(S.top());
 						S.pop();
 					}

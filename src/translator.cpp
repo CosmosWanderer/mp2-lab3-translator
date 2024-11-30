@@ -21,7 +21,7 @@ void translator::addFunctions(std::set<std::string> f1, std::set<std::string> f2
 	}
 }
 
-void translator::execute(std::string input) {
+std::string translator::execute(std::string input) {
 	// Если ввели команду "end"
 	bool isEnd = 1;
 	if (input[0] == 'e' && input[1] == 'n' && input[2] == 'd') {
@@ -37,25 +37,23 @@ void translator::execute(std::string input) {
 	}
 	if (isEnd) {
 		isGoing = 0;
-		return;
+		return std::string("Translation is over");
 	}
 
 	// Если ввод пустой
 	if (input.empty()) {
-		std::cout << ("Your input is empty") << std::endl;
-		return;
+		return std::string("Input is empty");
 	}
 
-	std::vector<std::pair<std::string, std::string>> lexems;
+	std::vector<std::pair<std::string, std::string>> lexems; 
 
 	/* --- Лексический анализ --- */
 	lexiconalysis lex;
 	try {
 		lexems = lex.analyse(input, variables, constants, func1, func2);
 	}
-	catch (std::string err) {
-		std::cout << "An error has been occured on lexiconalysis part: " << err << std::endl;
-		return;
+	catch (std::string err) { // const char*
+		throw std::string("An error has been occured on lexiconalysis part: " + err);
 	}
 	
 	/* --- Синтаксический анализ --- */
@@ -64,8 +62,7 @@ void translator::execute(std::string input) {
 		lexems = syn.analyse(lexems, variables, constants, func1, func2);
 	}
 	catch (std::string err) {
-		std::cout << "An error has been occured on syntanalysis part: " << err << std::endl;
-		return;
+		throw std::string("An error has been occured on syntanalysis part: " + err);
 	}
 	
 	/*
@@ -78,21 +75,19 @@ void translator::execute(std::string input) {
 	Для первого надо убрать из лексем первые два элемента (название переменной и знак равно), а после вместо того,
 	чтобы вывести значение, присвоить уже существующей переменной значение/создать новую
 	*/
-	bool isFloat = 0;
-	std::pair<std::string, std::string> newVar; //   Название/значение
+	std::pair<std::string, std::string> newVar; //Название/значение
 	bool type1 = false;
 	if (lexems.size() > 1 && lexems[1].first == "equal") {
 		type1 = true;
-		isFloat = 1;
 		newVar.first = lexems[0].second;
 		lexems.erase(lexems.begin());
 		lexems.erase(lexems.begin());
 	}
-	
 	/* --- Переводим в префиксную форму --- */
 	transformator trnsfmtr;
 	lexems = trnsfmtr.transform(lexems);
-	// Все константы и переменные заменяем на их значения (флоты, потому что) 
+
+	// Все константы и переменные заменяем на их значения 
 	for (int i = 0; i < lexems.size(); i++) {
 		if (lexems[i].first == "variable") {
 			lexems[i].first = "float";
@@ -105,40 +100,28 @@ void translator::execute(std::string input) {
 			lexems[i].second = cs;
 		}
 	}
+	// Сказали, что можно всё делать флотами. Я решил не убирать полностью систему, которая разделяет ввод интеджеров и флотов, т.к. она может потом понадобиться, но просто заменять все инты на флоты
 	for (int i = 0; i < lexems.size(); i++) {
-		if (lexems[i].first == "float" || lexems[i].first == "func1" || lexems[i].first == "func2") {
-			isFloat = 1;
-			break;
+		if (lexems[i].first == "integer") {
+			lexems[i].first = "float";
+			lexems[i].second += ".0";
 		}
 	}
-	if (isFloat || type1) {
-		for (int i = 0; i < lexems.size(); i++) {
-			if (lexems[i].first == "integer") {
-				lexems[i].first = "float";
-				lexems[i].second += ".0";
-			}
-		}
-	}
-	// Про моё решение с интами и флотами в комменте в translator.h написано
 	/* --- Вычисляем значение выражения --- */
 	calculator calc;
 	std::string value;
-
 	try {
-		value = calc.calculate(isFloat, lexems);
+		value = calc.calculate(lexems);
 	}
 	catch (std::string err) {
-		std::cout << err << std::endl;
-		return;
+		throw std::string("An error has been occured on calculation part : " + err);
 	}
-
+	
 	// Конец
 	if (type1) {
 		newVar.second = value;
 		variables[newVar.first] = newVar.second;
+		return std::string("Variable " + newVar.first + " set with value " + newVar.second);
 	}
-	else {
-		std::cout << value << std::endl;
-	}
-	return;
+	return value;
 }

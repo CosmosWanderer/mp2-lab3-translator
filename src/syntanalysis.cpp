@@ -9,15 +9,17 @@
 
 
 std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vector<std::pair<std::string, std::string>> lexems, std::unordered_map<std::string, std::string> variables, std::unordered_map<std::string, std::string> constants, std::set<std::string> func1, std::set<std::string> func2) {
-	
+	std::vector<std::pair<std::string, std::string>> copyLexems = lexems;
 	if (lexems.empty()) return lexems;
 
+	int pntr = -1;
 	if (lexems.size() > 1 && lexems[0].first == "variable" && lexems[1].first == "equal") {
+		pntr += 2;
 		lexems.erase(lexems.begin());
 		lexems.erase(lexems.begin());
 		if (!lexems.size()) throw std::string("Syntanalysis error - equal-error");
 	}
-	
+
 	/*	
 	Если ввод начинается с (variable =), то скипаем эти две лексемы и идём проверять дальше
 	При этом, знак = не может встречаться нигде больше
@@ -62,7 +64,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 
 	std::pair<int, int> status = { 0, 0 };
 
-	int pntr = -1;
+	
 	for (std::pair<std::string, std::string> token : lexems) {
 		pntr++;
 		std::string type = token.first;
@@ -87,7 +89,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 			// Унарный плюс/минус
 			if (token.second == "+" || token.second == "-") {
 				// Нужно отметить, что это унарная операция
-				lexems[pntr].second += "u";
+				copyLexems[pntr].second += "u";
 				status.first = 0;
 				break;
 			}
@@ -134,7 +136,6 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 		// Закрывающих скобок больше, чем открывающих
 		if (status.second < 0) throw std::string("Syntanalysis error - bracket error 1");
 	}
-
 	// Не все скобки закрыли
 	if (status.second != 0) throw std::string("Syntanalysis error - bracket error 2");
 	// Неверный конец выражения
@@ -143,5 +144,5 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 	// Если нигде не словили throw, то всё норм
 	
 	// Вообще, изначально функция не должна была ничего менять, но времена изменились, когда я стал пытаться работать с унарными операциями
-	return lexems;
+	return copyLexems;
 }

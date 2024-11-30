@@ -15,7 +15,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 	if (str.empty()) {  
 		return tokens; 
 	}
-	// статус - это, как можно догадаться, статус
+	// статус отвечает за текущее состояние
 	int status = 0;
 
 	/*
@@ -179,6 +179,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 				tokens.push_back({ "operation", token });
 				token = "";
 				status = 0;
+				break;
 			}
 			throw std::string("Lexiconalysis error - case 1");
 	}
@@ -411,26 +412,6 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			throw std::string("Lexiconalysis error - unexpected end of input");
 		}
 	}
-
-	/* Изначально это делалось тут, но потом я решил, что не надо тут
-	// Если в лексемах есть хотя бы одно float число - заменяем все числа на float
-	bool isFloat = 0;
-	for (int i = 0; i < tokens.size(); i++) {
-		if (tokens[i].first == "float") { 
-			isFloat = 1;
-			break;
-		}
-	}
-
-	if (isFloat) {
-		for (int i = 0; i < tokens.size(); i++) {
-			if (tokens[i].first == "integer") {
-				tokens[i].first = "float"; 
-				tokens[i].second += ".0";
-			}
-		}
-	}
-	*/
 
 	return tokens; 
 }
