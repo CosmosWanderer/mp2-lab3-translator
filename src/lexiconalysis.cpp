@@ -5,7 +5,7 @@
 #include <set>
 #include <vector>
 #include "functions.h"
-
+#include "translator.h"
 
 std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::string str, std::unordered_map<std::string, std::string> variables, std::unordered_map<std::string, std::string> constants, std::set<std::string> func1, std::set<std::string> func2) {
 	// Хранилище для лексем: "тип" - "значение"
@@ -26,7 +26,11 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 	3 - ожидание точки (дробной части)
 	4 - ввод дробной части
 	5 - одна точка (как 4, но только обязательно получить число)
+
+	6 - ввод аргументов func2
 	*/
+	int bracketCounter = 0; // Для подсчёта скобок в статусе 6
+	std::string value;
 
 	std::string token = ""; 
 	for (char c : str) {   
@@ -137,7 +141,8 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 					if (func2.count(token)) {
 						tokens.push_back({ "func2", token });
 						token = "";
-						status = 0;
+						status = 6;
+						bracketCounter = 0;
 						break;
 					}
 					else throw std::string("Lexiconalysis error - case 1");
@@ -383,6 +388,55 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			}
 			throw std::string("Lexiconalysis error - case 5");
 		}
+
+		/* --- Ввод аргументов func2 --- */
+		case 6: {
+
+			// Если ввод аргумента закончен, то вычисляем его значение
+			if (((c == ',' || c == ')') && bracketCounter == 0) || bracketCounter < 0) {
+				translator tr;
+				tr.constants = constants;
+				tr.variables = variables;
+				tr.func1 = func1;
+				tr.func2 = func2;
+
+				try {
+					//std::cout << token << std::endl;
+					value = tr.execute(token);
+				}
+				catch (std::string err) {
+					throw std::string("recursion error: " + err);
+				}
+
+				if (tr.isVar) {
+					throw std::string("Lexiconalysis error - recursion error");
+				}
+
+				tokens.push_back({"float", value});
+				if (c == ')') {
+					tokens.push_back({"closing bracket", ")"});
+					status = 0;
+					bracketCounter = 0;
+				}
+				else {
+					tokens.push_back({ "comma", "," });
+					status = 6;
+					bracketCounter = 0;
+				}
+
+				token = "";
+				break;
+			}
+			// Все следующие вводимые значения будут частью выражения, к которому мы применим translator (т.е. рекурсивно их вычислим)
+			else {
+				status = 6;
+				token += c;
+				if (c == '(') bracketCounter++;
+				else if (c == ')') bracketCounter--;
+				break;
+			}
+		}
+
 		// Вроде бы нет ситуаций, когда не подходит ни один case, но хуже от добавления этого не будет
 		default:
 			throw std::string("Lexiconalysis error");
@@ -391,6 +445,9 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 
 	// Цикл может закончится до того, как токен добавлен в список лексем
 	if (!token.empty()) {
+		if (status == 6) {
+			throw std::string("Lexiconalysis error - unexpected end of input");
+		}
 		if (token == "0") {
 			tokens.push_back({ "integer", token });
 		}

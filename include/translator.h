@@ -14,6 +14,10 @@
 
 class translator { 
 public:
+	// Нужно для рекурсивной обработки func2
+	bool isVar = 0;
+
+
 	// Функции задаются из файла/класса functions. Для добавления новых функций, нужно перейти туда
 	std::set<std::string> func1; 
 	std::set<std::string> func2; 

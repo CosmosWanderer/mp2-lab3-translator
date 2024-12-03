@@ -77,8 +77,10 @@ std::string translator::execute(std::string input) {
 	*/
 	std::pair<std::string, std::string> newVar; //Название/значение
 	bool type1 = false;
+	isVar = 0;
 	if (lexems.size() > 1 && lexems[1].first == "equal") {
 		type1 = true;
+		isVar = 1;
 		newVar.first = lexems[0].second;
 		lexems.erase(lexems.begin());
 		lexems.erase(lexems.begin());
