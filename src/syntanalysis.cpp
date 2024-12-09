@@ -138,7 +138,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 	// bad end of input
 	if (status.first != 1) throw std::string("Syntanalysis error - unexpected ending");
 
-	// Useless rant	
+	// Useless rant	 
 	// ¬ообще, изначально функци€ не должна была ничего мен€ть, но времена изменились, когда € стал пытатьс€ работать с унарными операци€ми
 	return copyLexems;
 }

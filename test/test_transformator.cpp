@@ -1,7 +1,6 @@
 #include <gtest.h> 
 #include "transformator.h"
 
-// Поступает набор лексем, возвращаем этот набор в постфиксной форме
 
 TEST(Transformator, GoodTransform1) {
 	std::vector<std::pair<std::string, std::string>> lexems = { {"float","1.0"}, {"operation", "+"}, {"float", "2.0"}};
@@ -26,7 +25,6 @@ TEST(Transformator, GoodTransform3) {
 
 	EXPECT_EQ(PostfixForm, tr.transform(lexems));
 }
-
 
 TEST(Transformator, GoodTransform4) {
 	std::vector<std::pair<std::string, std::string>> lexems = { {"func1","sin("}, {"float", "2.0"},  {"operation", "*"}, {"float", "3.0"}, {"closing bracket", ")"} };

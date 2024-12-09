@@ -1,6 +1,7 @@
 #include <gtest.h>
 #include "syntanalysis.h"
 
+
 namespace {
 	std::set<std::string> func1 = { "sin(", "cos(", "(" };
 	std::set<std::string> func2 = { "max(", "sin(" };
@@ -8,9 +9,6 @@ namespace {
 	std::unordered_map <std::string, std::string> constants = { {"Pi", "3.14159265359"} };
 }
 
-// Получаем на вход набор лексем, выкидываем ошибку, если расположение некорректно, иначе ничего не выкидываем. Так же, когда нужно, заменяем + и - на u+ и u-
-
-// Throws if синтаксическая ошибка
 
 TEST(Syntanalysis, SyntanalysisBadInput1) {
 	syntanalysis syn;
@@ -72,7 +70,6 @@ TEST(Syntanalysis, SyntanalysisBadInput10) {
 	EXPECT_ANY_THROW(syn.analyse(lexems, variables, constants, func1, func2));
 }
 
-// No throw если нет ошибок
 
 TEST(Syntanalysis, SyntanalysisGoodInput1) {
 	syntanalysis syn;

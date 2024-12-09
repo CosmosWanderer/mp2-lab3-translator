@@ -1,17 +1,14 @@
 #include <gtest.h>
 #include "lexiconalysis.h"
 
-// Эти данные нужны для использования функции analyse
+
 namespace {
 	std::set<std::string> func1 = { "sin(", "cos(", "(" };
 	std::set<std::string> func2 = { "max(", "sin(" };
 	std::unordered_map <std::string, std::string> variables;
 	std::unordered_map <std::string, std::string> constants = { {"Pi", "3.14159265359"} };
 }
-/* --- Тексты для лексического анализа --- */
-// На вход поступает строка. Throws if строка не соответствует ожиданиям, иначе не throws. Также возвращает вектор лексем
 
-// Throws if лексическая ошибка
 
 TEST(Lexiconalysis, LexiconalysisbadInput1) {
 	std::string input = "00.0";
@@ -44,7 +41,6 @@ TEST(Lexiconalysis, LexiconalysisbadInput5) {
 }
 
 TEST(Lexiconalysis, LexiconalysisbadInput6) {
-	// Ввод не заданной функции
 	std::string input = "f(1, 2, 3)";
 	lexiconalysis lex;
 	EXPECT_ANY_THROW(lex.analyse(input, variables, constants, func1, func2));
@@ -74,7 +70,6 @@ TEST(Lexiconalysis, LexiconalysisbadInput10) {
 	EXPECT_ANY_THROW(lex.analyse(input, variables, constants, func1, func2));
 }
 
-// No throws если всё норм
 
 TEST(Lexiconalysis, LexiconalysisGoodInput1) {
 	std::string input = "1";
@@ -136,7 +131,6 @@ TEST(Lexiconalysis, LexiconalysisGoodInput10) {
 	EXPECT_NO_THROW(lex.analyse(input, variables, constants, func1, func2));
 }
 
-//Возвращает правильный список лексем
 
 TEST(lexiconalysis, LexiconalysisGoodReturn1) {
 	std::string input = "1 + 1";

@@ -1,10 +1,6 @@
 #include <gtest.h>
 #include "calculator.h"
 
-// ѕоступает выражение в постфиксной форме, выводитс€ значение выражение. ≈сли при вычислении происходит деление на 0, то выбрасываетс€ ошибка
-
-
-// ѕравильно выводит значение выражени€
 
 TEST(Calculator, GoodCalculation1) {
 	std::vector<std::pair<std::string, std::string>> PostfixForm = { {"float", "2.0"}, {"comma", ","}, {"float", "3.0"}, {"func2", "max("} };
@@ -42,7 +38,6 @@ TEST(Calculator, GoodCalculation4) {
 	EXPECT_EQ(ans, rightAns);
 }
 
-
 TEST(Calculator, GoodCalculation5) {
 	std::vector<std::pair<std::string, std::string>> PostfixForm = { {"float", "1"}, {"float", "0.5"}, { "operation", "-u" }, {"operation",  "+"}};
 	calculator cl;
@@ -52,7 +47,6 @@ TEST(Calculator, GoodCalculation5) {
 	EXPECT_EQ(ans, rightAns);
 }
 
-// Throws если деление на ноль
 
 TEST(Calculator, ThrowIfDivisionByZero) {
 	std::vector<std::pair<std::string, std::string>> PostfixForm = { {"float", "1.0"}, {"float", "0.0"}, { "operation", "/" }};

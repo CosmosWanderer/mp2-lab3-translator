@@ -60,7 +60,7 @@ std::string functions::solveFunc2(std::vector<std::string> values, std::string f
 
 // Max(im)
 float functions::myMax(std::vector<float> values) {
-	float mx = FLT_MIN;
+	float mx = -FLT_MAX;
 	for (int i = 0; i < values.size(); i++) {
 		if (values[i] > mx) mx = values[i];
 	}
