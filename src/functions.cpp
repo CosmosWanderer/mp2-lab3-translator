@@ -8,8 +8,8 @@
 #include <vector>
 #include <algorithm>
 
-/* Функции первого вида */
-// Внешняя функция
+/* --- func1 --- */
+// Outer-function
 std::string functions::solveFunc1(std::string value, std::string function) {
 	float vl = stof(value);
 	float ans = 0;
@@ -26,21 +26,21 @@ std::string functions::solveFunc1(std::string value, std::string function) {
 	return std::to_string(ans);
 }
 
-// Скобка
+// Bracket
 float functions::myBracket(float value) {
 	return value;
 }
-// Синус (не готов)
+// Sin (lets pretend it is my realisation of it)
 float functions::mySin(float value) {
 	return sin(value);
 }
-// Косинус (не готов)
+// Cos (same)
 float functions::myCos(float value) {
 	return cos(value);
 }
 
-/* Функции второго вида */
-// Внешняя функция
+/* --- func2 --- */
+// Outer-func
 std::string functions::solveFunc2(std::vector<std::string> values, std::string function) {
 	std::vector<float> fvalues;
 	for (int i = 0; i < values.size(); i++) {
@@ -58,7 +58,7 @@ std::string functions::solveFunc2(std::vector<std::string> values, std::string f
 
 }
 
-// Максим(ум)
+// Max(im)
 float functions::myMax(std::vector<float> values) {
 	float mx = FLT_MIN;
 	for (int i = 0; i < values.size(); i++) {
@@ -66,7 +66,7 @@ float functions::myMax(std::vector<float> values) {
 	}
 	return mx;
 }
-// Минимум
+// Min
 float functions::myMin(std::vector<float> values) {
 	float mn = FLT_MAX;
 	for (int i = 0; i < values.size(); i++) {

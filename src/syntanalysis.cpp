@@ -21,30 +21,28 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 	}
 
 	/*	
-	Если ввод начинается с (variable =), то скипаем эти две лексемы и идём проверять дальше
-	При этом, знак = не может встречаться нигде больше
+	If input begins with "variable =", then skip those lexems
 
 
-	Первое число отвечает за текущий статус:
-	0 - ожидаем переменную, константу, число, функцию
-	1 - ожидаем операцию (+, -, *, /) или закрывающую скобку. Также не пустое выражение заканчивается на этом состоянии
+	First number - current state:
+	0 - expect variable, constant, number, function
+	1 - expect operation (+, -, *, /) or closing bracket. Also, not empty input must end on this state
 	
-	2 - внутри func2, ожидаем выражение
-	3 - внутри func2, ожидаем запятую или закрывающую скобку
+	2 - inside func2, expect an expression
+	3 - inside func2, expect a comma or closing bracket
 
-	Второе число отвечает за количество ожидаемых закрывающихся скобок.
-	При появлении функции ("sin(", "fact(", т.д., важно - "(" тоже считается функцией) число увеличивается, при появлении ")" - уменьшается.
-	Оно не может стать меньше 0, в конце проверки оно должно быть равно 0
+	The second number is responsible for the number of expected closing brackets.
+	When a function ("sin(", "fact(", etc., it is important - "(" is also considered a function) appears, the number increases, when ")" appears, the number decreases.
+	It cannot become less than 0, at the end it must be equal to 0
 
+	Functions are divided into two types:
+	type 1: func1( expression ) example: fact(2 + 1 / 8)
+	type 2: func2(value, value..) example max(Pi, 1, 3, variable)
 
-	Функции делятся на два типа:
-	тип 1: func1( выражение ) пример: fact(2 + 1 / 8)
-	тип 2: func2(значение, значение..) пример max(Pi, 1, 3, variable)
+	If a function of type one arrives, then we simply add 1 to the second number.
 
-	Если пришла функция типа один, то просто добавляем ко второму числу 1.
-	
-	Если пришла функция типа два, то ожидаем последовательный ввод переменной/числа/константы и запятой, пока не придёт закрывающая скобка. 
-	Ввод не может начинаться или заканчиваться с запятой. Такие дела
+	If a function of type two arrives, then we wait for the sequential input of a variable/number/constant and a comma until the closing bracket arrives.
+	The input cannot begin or end with a comma.
 	
 	*/
 
@@ -52,7 +50,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 		"integer", "float", "variable", "constant"
 	};
 
-	// Проверяем, чтобы у всех переменных/констант были заданны значения
+	// Checking the existance of all constants/variables
 	for (std::pair<std::string, std::string> token : lexems) {
 		if (token.first == "variable" && !(variables.count(token.second))) {
 			throw std::string("Syntanalysis error - variables error");
@@ -71,7 +69,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 
 		switch (status.first) {
 		
-		/* --- Ожидаем какое-нибудь значение --- */
+		/* --- Expecting value --- */
 		case 0: {
 			if (znacheniya.count(type)) {
 				status.first = 1;
@@ -86,16 +84,15 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 				status.first = 2;
 				break;
 			}
-			// Унарный плюс/минус
+			// u+/u-
 			if (token.second == "+" || token.second == "-") {
-				// Нужно отметить, что это унарная операция
 				copyLexems[pntr].second += "u";
 				status.first = 0;
 				break;
 			}
 			throw std::string("Syntanalysis error - case 0");
 		}
-		/* --- Ожидаем знак + , -, *, / , или закрывающую скобку --- */
+		/* --- Expecting + , -, *, / , or ) --- */
 		case 1: {
 			if (type == "operation") {
 				status.first = 0;
@@ -108,7 +105,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 			}
 			throw std::string("Syntanalysis error - case 1");
 		}
-		/* --- Че-то там для функций второго типа --- */
+		/* --- func2 --- */
 		case 2: {
 			if (znacheniya.count(type)) {
 				status.first = 3;
@@ -116,7 +113,7 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 			}
 			throw std::string("Syntanalysis error - case 2");
 		}
-		/* --- И ещё --- */
+		/* --- more func2 --- */
 		case 3: {
 			if (type == "comma") {
 				status.first = 2;
@@ -133,16 +130,15 @@ std::vector<std::pair<std::string, std::string>> syntanalysis::analyse(std::vect
 		}
 		}
 
-		// Закрывающих скобок больше, чем открывающих
+		// too much closing brackets
 		if (status.second < 0) throw std::string("Syntanalysis error - bracket error 1");
 	}
-	// Не все скобки закрыли
+	// not all brackets are closed
 	if (status.second != 0) throw std::string("Syntanalysis error - bracket error 2");
-	// Неверный конец выражения
+	// bad end of input
 	if (status.first != 1) throw std::string("Syntanalysis error - unexpected ending");
 
-	// Если нигде не словили throw, то всё норм
-	
+	// Useless rant	
 	// Вообще, изначально функция не должна была ничего менять, но времена изменились, когда я стал пытаться работать с унарными операциями
 	return copyLexems;
 }

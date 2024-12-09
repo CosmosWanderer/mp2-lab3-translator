@@ -17,17 +17,17 @@ std::string calculator::calculate(std::vector<std::pair<std::string, std::string
 
 	
 	for (std::pair<std::string, std::string> token : postfixForm) {
-		/* --- Число --- */
+		/* --- Number --- */
 		if (token.first == "float") {
 			S.push(token);
 		}
-		/* --- Запятая (нужна для функций типа 2) --- */
+		/* --- Comma (for func2) --- */
 		else if (token.first == "comma") {
 			S.push(token);
 		}
-		/* --- Операция --- */
+		/* --- Operation --- */
 		else if (token.first == "operation") {
-			// Отдельная проверка на унарные операции
+			// For unar plus and minus
 			if (token.second.size() > 1) {
 				float resValue = 0;
 				float a = std::stof(S.top().second);
@@ -65,13 +65,13 @@ std::string calculator::calculate(std::vector<std::pair<std::string, std::string
 				S.push({ "float", std::to_string(resValue) });
 			}
 		}
-		/* --- Функции типа 1 (по сути теже операции, но для одного числа --- */
+		/* --- func1 --- */
 		else if (token.first == "func1") {
 			std::string resValue = f.solveFunc1(S.top().second, token.second);
 			S.pop();
 			S.push({ "float", resValue });
 		}
-		/* --- Функции типа 2 (требуют набрать вектор аргументов) --- */
+		/* --- func2 (they need vector of arguments) --- */
 		else if (token.first == "func2") {
 			std::vector<std::string> values;
 			values.push_back(S.top().second);
@@ -88,7 +88,7 @@ std::string calculator::calculate(std::vector<std::pair<std::string, std::string
 
 	
 
-	// Это не несёт большого смысла, просто чтобы не выxодили флоты с кучей нулей
+	// Just deleting all unnecessary zeroes
 	std::string value = S.top().second;
 	
 	bool canFix = 0;
@@ -109,7 +109,7 @@ std::string calculator::calculate(std::vector<std::pair<std::string, std::string
 		}
 	}
 
-	// Костыль
+	// Lets just leave it here, I believe, it wont hurt anybody
 	if (value == "-0.0") {
 		value = "0.0";
 	}
@@ -117,7 +117,7 @@ std::string calculator::calculate(std::vector<std::pair<std::string, std::string
 		value = "0";
 	}
 
-	// В конце останется итоговое значение
+	
 	return value;
 }
 

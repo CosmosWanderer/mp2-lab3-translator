@@ -22,7 +22,7 @@ void translator::addFunctions(std::set<std::string> f1, std::set<std::string> f2
 }
 
 std::string translator::execute(std::string input) {
-	// Если ввели команду "end"
+	// "end"
 	bool isEnd = 1;
 	if (input[0] == 'e' && input[1] == 'n' && input[2] == 'd') {
 		for (int i = 3; i < input.size(); i++) {
@@ -40,23 +40,24 @@ std::string translator::execute(std::string input) {
 		return std::string("Translation is over");
 	}
 
-	// Если ввод пустой
+	// If input is empty
 	if (input.empty()) {
+		recErr = true;
 		return std::string("Input is empty");
 	}
 
 	std::vector<std::pair<std::string, std::string>> lexems; 
 
-	/* --- Лексический анализ --- */
+	/* --- Lexical analysis --- */
 	lexiconalysis lex;
 	try {
 		lexems = lex.analyse(input, variables, constants, func1, func2);
 	}
-	catch (std::string err) { // const char*
+	catch (std::string err) { // const char* (I guess it is not happening lol)
 		throw std::string("An error has been occured on lexiconalysis part: " + err);
 	}
 	
-	/* --- Синтаксический анализ --- */
+	/* --- Syntactic analysis --- */
 	syntanalysis syn;
 	try {
 		lexems = syn.analyse(lexems, variables, constants, func1, func2);
@@ -66,30 +67,31 @@ std::string translator::execute(std::string input) {
 	}
 	
 	/*
-	У нас есть два случая:
-	1) вычисляем значение для некоторой переменной
-	2) вычисляем значение и выводим его
+	There are two possible "paths":
+	1) counting a value for a variable
+	2) counting a value and returning it
 
 
-	Для второго пункта ничего менять не нужно, просто вывести значение.
-	Для первого надо убрать из лексем первые два элемента (название переменной и знак равно), а после вместо того,
-	чтобы вывести значение, присвоить уже существующей переменной значение/создать новую
+	For the second, don't need to change anything, just output the value.
+	For the first, we need to remove the first two elements from the lexemes (the variable name and the equal sign), 
+	and then, instead of outputting the value, assign the value to the existing variable/create a new one
 	*/
-	std::pair<std::string, std::string> newVar; //Название/значение
+
+	std::pair<std::string, std::string> newVar; // name/value
 	bool type1 = false;
-	isVar = 0;
+	recErr = 0;
 	if (lexems.size() > 1 && lexems[1].first == "equal") {
 		type1 = true;
-		isVar = 1;
+		recErr = 1;
 		newVar.first = lexems[0].second;
 		lexems.erase(lexems.begin());
 		lexems.erase(lexems.begin());
 	}
-	/* --- Переводим в префиксную форму --- */
+	/* --- Prefix form --- */
 	transformator trnsfmtr;
 	lexems = trnsfmtr.transform(lexems);
 
-	// Все константы и переменные заменяем на их значения 
+	// Placing values instead of constants/variables 
 	for (int i = 0; i < lexems.size(); i++) {
 		if (lexems[i].first == "variable") {
 			lexems[i].first = "float";
@@ -102,14 +104,16 @@ std::string translator::execute(std::string input) {
 			lexems[i].second = cs;
 		}
 	}
+	// Useles rant about floats and integers
 	// Сказали, что можно всё делать флотами. Я решил не убирать полностью систему, которая разделяет ввод интеджеров и флотов, т.к. она может потом понадобиться, но просто заменять все инты на флоты
+	// In short, changing every integer into float
 	for (int i = 0; i < lexems.size(); i++) {
 		if (lexems[i].first == "integer") {
 			lexems[i].first = "float";
 			lexems[i].second += ".0";
 		}
 	}
-	/* --- Вычисляем значение выражения --- */
+	/* --- Calculating value --- */
 	calculator calc;
 	std::string value;
 	try {
@@ -119,7 +123,7 @@ std::string translator::execute(std::string input) {
 		throw std::string("An error has been occured on calculation part : " + err);
 	}
 	
-	// Конец
+	// The end
 	if (type1) {
 		newVar.second = value;
 		variables[newVar.first] = newVar.second;

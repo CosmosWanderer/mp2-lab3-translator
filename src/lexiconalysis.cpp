@@ -8,28 +8,28 @@
 #include "translator.h"
 
 std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::string str, std::unordered_map<std::string, std::string> variables, std::unordered_map<std::string, std::string> constants, std::set<std::string> func1, std::set<std::string> func2) {
-	// Хранилище для лексем: "тип" - "значение"
+	// Lexems: "type" - "value"
 	std::vector<std::pair<std::string, std::string>> tokens;  
 	
-	// c - текущий рассматриваемый символ
 	if (str.empty()) {  
 		return tokens; 
 	}
-	// статус отвечает за текущее состояние
+
 	int status = 0;
 
 	/*
-	Список состояний:
-	0 - пустое состояние
-	1 - ввод названия переменной/константы/функции
-	2 - ввод числа (целое или целая часть)
-	3 - ожидание точки (дробной части)
-	4 - ввод дробной части
-	5 - одна точка (как 4, но только обязательно получить число)
+	Possible states:
+	0 - basic state
+	1 - entering the name of the variable/constant/function
+	2 - entering a number (integer or integer part)
+	3 - waiting for a point (fractional part)
+	4 - input of fractional part
+	5 - one point (like 4, but just be sure to get a number)
 
-	6 - ввод аргументов func2
+	6 - input of arguments func2
 	*/
-	int bracketCounter = 0; // Для подсчёта скобок в статусе 6
+
+	int bracketCounter = 0; // bracket counting in 6 state
 	std::string value;
 
 	std::string token = ""; 
@@ -40,7 +40,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 
 		switch (status) {
 		
-		/* --- пустое состояние --- */
+		/* --- basic state --- */
 		case 0: {
 			if (c == ' ') {
 				status = 0;
@@ -105,7 +105,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			throw std::string("Lexiconalysis error - case 0");
 		}
 		
-		/* --- ввод названия переменной / константы / функции --- */
+		/* --- entering the name of the variable/constant/function --- */
 		case 1: {
 			if (c == ' ') {
 				if (constants.count(token)) {
@@ -189,7 +189,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			throw std::string("Lexiconalysis error - case 1");
 	}
 
-		/* --- ввод числа(целое или целая часть) --- */
+		/* --- entering a number (integer or integer part) --- */
 		case 2: {
 			if (c == ' ') {
 				tokens.push_back({ "integer", token });
@@ -252,7 +252,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			}
 			throw std::string("Lexiconalysis error - case 2");
 		}
-		/* --- Ожидание точки(дробной части) --- */
+		/* --- waiting for a point (fractional part) --- */
 		case 3: {
 
 			if (!numbers.count(c) && c != '.') {
@@ -317,7 +317,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			}
 			throw std::string("Lexiconalysis error - case 3");
 		}
-		/* --- Ввод дробной части-- - */
+		/* --- input of fractional part --- */
 		case 4: {
 			if (c == ' ') {
 				token += '0';
@@ -379,7 +379,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			}
 			throw std::string("Lexiconalysis error - case 4");
 		}
-		/* --- Проверка на то, чтобы не была введена только одна точка без цифр --- */
+		/* --- one point (like 4, but just be sure to get a number) --- */
 		case 5: {
 			if (numbers.count(c)) {
 				token += c;
@@ -389,10 +389,10 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			throw std::string("Lexiconalysis error - case 5");
 		}
 
-		/* --- Ввод аргументов func2 --- */
+		/* --- input of arguments func2 --- */
 		case 6: {
 
-			// Если ввод аргумента закончен, то вычисляем его значение
+			// When input is over, counting the value
 			if (((c == ',' || c == ')') && bracketCounter == 0) || bracketCounter < 0) {
 				translator tr;
 				tr.constants = constants;
@@ -408,7 +408,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 					throw std::string("recursion error: " + err);
 				}
 
-				if (tr.isVar) {
+				if (tr.recErr) {
 					throw std::string("Lexiconalysis error - recursion error");
 				}
 
@@ -427,7 +427,7 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 				token = "";
 				break;
 			}
-			// Все следующие вводимые значения будут частью выражения, к которому мы применим translator (т.е. рекурсивно их вычислим)
+			// All of the following input values ??will be part of the expression to which we will apply the translator (recursively)
 			else {
 				status = 6;
 				token += c;
@@ -437,13 +437,13 @@ std::vector<std::pair<std::string, std::string>> lexiconalysis::analyse(std::str
 			}
 		}
 
-		// Вроде бы нет ситуаций, когда не подходит ни один case, но хуже от добавления этого не будет
+		// If something went wrong
 		default:
 			throw std::string("Lexiconalysis error");
 		}
 	}
 
-	// Цикл может закончится до того, как токен добавлен в список лексем
+	// If cycle ends before last lexem is full
 	if (!token.empty()) {
 		if (status == 6) {
 			throw std::string("Lexiconalysis error - unexpected end of input");

@@ -11,30 +11,35 @@
 class functions {
 public:
 	/*
-	При добавлении новых функций:
-	1) добавить их в set, который нужен, чтобы транслятор знал о существовании этих функций
-	2) добавить реализацию функции в cpp и h файлы
-	3) добавить в solveFunc
-	Готово
+	Fast function-adding system:
+	1) Add it into set, which is needed for tanslator to know, that this function exists
+	2) Add realistatin of this function in cpp and h files
+	3) Add it in solveFunc
+	Ready
 	*/
 
-	// Другие функции проверяют эти сеты, чтобы понять, что существует такая функция
+	// Functions lists for translator
 	std::set<std::string> func1 = { "(", "sin(", "cos(" };
 	std::set<std::string> func2 = { "max(", "min(" };
 
 
 	/*
-	Функции делятся на два вида
-	func1 - получают выражение, возвращают значение. Выражение может быть сколь угодно сложным, например, для синуса: sin(Pi/2 - 12 * (max(1, 2, 3))
+	func1 - receive an expression, return a value. The expression can be as complex as you like.
+	example: sin(Pi/2 - 12 * (max(1, 2, 3))
 
-	func2 - получают несколько значений через запятые. Пока что принимают исключительно единичные значения (float, integer, constant и variable) через запятую.
-	Т.е. даже значение -3.0 не может быть использовано в такой функции, т.к. здесь присутствует унарный минус. 
-	Потом сделаю нормальную реализацию, где каждое выражение внутри функции будет высчитываться рекурс
-	ивно
-	пример: max(Pi, 1, 2, 3, 8)
+	func2 - receive several values ??separated by commas. 
+	OLD:
+	So far, only single values ??(float, integer, constant and variable) separated by commas are accepted.
+	That is, even the value -3.0 cannot be used in such a function, since there is a unary minus here.
+	Then I will make a normal implementation, where each expression inside the function will be calculated recursively.
+	example: max(Pi, 1, 2, 3, 8)
+
+	UPD: 
+	I did it, now they are working as intended! You can enter whatever you want for as long as it is exactly what I want for you to enter, and it will work!
+	example: max(sin(Pi / 2), 1 + 2 * (1 - 2), -123, max(min(1, 2), 2))
 	*/
 
-	// Функции первого вида
+	// func1
 	std::string solveFunc1(std::string value, std::string function);
 
 	float myBracket(float value);
@@ -43,7 +48,7 @@ public:
 
 	float myCos(float value);
 
-	// Функции второго вида
+	// func2
 	std::string solveFunc2(std::vector<std::string> value, std::string function);
 
 	float myMax(std::vector<float> values);
